@@ -7,23 +7,55 @@ static void init(t_god *god)
 	god->img = mlx_new_image(god->mlx, WWIDTH, WHEIGHT);
 }
 
+static t_point rotate(t_point v, float angle)
+{
+	t_point res;
+
+	res.x = cos(angle) * v.x - sin(angle) * v.y;
+	res.y = sin(angle) * v.x + cos(angle) * v.y;
+	return res;
+}
+
+static t_point	generate_rand_pt_in_square(t_square s)
+{
+	t_point vs_flat = {rand() % s.width, rand() % s.height};
+	t_point vs = rotate(vs_flat, s.angle);
+	t_point res = {s.ul.x + vs.x, s.ul.y + vs.y};
+	return res;
+}
+
 static void update(t_god *god)
 {
-	t_color purple = {127, 0, 255};
-	t_color cyan = {0, 255, 255};
+	t_color rand_red = {255, rand() % 256, 0};
+	
+	t_square square;
+	square.width = 150;
+	square.height = 100;
+	square.ul = (t_point){80, 30};
+	square.angle = PI / 4;
+	t_point tmp;
+	for (int i = 0; i < 10000; i++) {
+		tmp = generate_rand_pt_in_square(square);
+		if (tmp.x >= 0 && tmp.x <= WWIDTH && tmp.y >= 0 && tmp.y <= WHEIGHT)
+			mlx_put_pixel_img(god->img, tmp.x, tmp.y, rand_red);
+	}
 
-	for (int x = 0; x < WWIDTH / 2; x++)
-		for (int y = 0; y < WHEIGHT / 2; y++)
-			mlx_put_pixel_img(god->img, x, y, purple);
-
-	t_point triangle[3] = {(t_point){800, 200}, (t_point){1000, 150}, (t_point){950, 350}};
-	draw_triangle(god->img, triangle, cyan);
+	square.ul = (t_point){450, 233};
+	square.width = 300;
+	square.height = 200;
+	square.angle = 0;
+	t_point triangle[3];
+	triangle[0] = generate_rand_pt_in_square(square);
+	triangle[1] = generate_rand_pt_in_square(square);
+	triangle[2] = generate_rand_pt_in_square(square);
+	draw_triangle(god->img, triangle, rand_red);
 }
 
 int main(void)
 {
 	t_god	god;
 
+	srand(time(NULL));
 	init(&god);
 	update(&god);
 	mlx_put_image_to_window(god.mlx, god.win, god.img, 0, 0);

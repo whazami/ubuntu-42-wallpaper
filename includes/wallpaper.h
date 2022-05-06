@@ -5,9 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #define WWIDTH  1200
 #define WHEIGHT 675
+
+#define PI 3.1415926535897932f
 
 #define ESC 65307
 
@@ -23,6 +26,14 @@ typedef struct s_point
 	float x;
 	float y;
 }	t_point;
+
+typedef struct s_square
+{
+	int		width;
+	int		height;
+	t_point	ul;
+	float	angle;
+}	t_square;
 
 typedef struct s_god
 {
