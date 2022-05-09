@@ -7,31 +7,24 @@ static void init(t_god *god)
 	god->img = mlx_new_image(god->mlx, WWIDTH, WHEIGHT);
 }
 
+
 static void update(t_god *god)
 {
-	t_color rand_red = {255, rand() % 256, 0};
-	
 	t_square square;
-	square.width = 150;
-	square.height = 100;
-	square.ul = (t_point){80, 30};
-	square.angle = PI / 4;
-	t_point tmp;
-	for (int i = 0; i < 10000; i++) {
-		tmp = generate_rand_pt_in_square(square);
-		if (tmp.x >= 0 && tmp.x <= WWIDTH && tmp.y >= 0 && tmp.y <= WHEIGHT)
-			mlx_put_pixel_img(god->img, tmp.x, tmp.y, rand_red);
-	}
-
 	square.ul = (t_point){450, 233};
 	square.width = 300;
 	square.height = 200;
 	square.angle = 0;
-	t_point triangle[3];
-	triangle[0] = generate_rand_pt_in_square(square);
-	triangle[1] = generate_rand_pt_in_square(square);
-	triangle[2] = generate_rand_pt_in_square(square);
-	draw_triangle(god->img, triangle, rand_red);
+
+	t_triangle t = generate_and_draw_triangle(square, god->img, NULL);
+	t_point base[2] = {t.pts[0], t.pts[1]};
+	square.ul = base[0];
+	t_point	base_v = minus(base[1], base[0]);
+	square.width = norm(base_v);
+	square.height = 200;
+	square.angle = atan2(base_v.y, base_v.x);
+	draw_pts_square(square, god->img);
+	generate_and_draw_triangle(square, god->img, &base);
 }
 
 int main(void)
