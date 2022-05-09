@@ -42,10 +42,15 @@ typedef struct s_god
 	void	*img;
 }	t_god;
 
+// utils.c
 int		free_all(t_god *god);
 int		key_hook(int keycode, t_god *god);
 void	mlx_put_pixel_img(void *img, int x, int y, t_color color);
 void	draw_triangle(void *img, t_point triangle[3], t_color color);
+t_point rotate(t_point v, float angle);
+t_point	generate_rand_pt_in_square(t_square s);
+
+// bsp.c
 int		bsp(t_point triangle[3], t_point pt);
 
 #endif // WALLPAPER_H

@@ -7,23 +7,6 @@ static void init(t_god *god)
 	god->img = mlx_new_image(god->mlx, WWIDTH, WHEIGHT);
 }
 
-static t_point rotate(t_point v, float angle)
-{
-	t_point res;
-
-	res.x = cos(angle) * v.x - sin(angle) * v.y;
-	res.y = sin(angle) * v.x + cos(angle) * v.y;
-	return res;
-}
-
-static t_point	generate_rand_pt_in_square(t_square s)
-{
-	t_point vs_flat = {rand() % s.width, rand() % s.height};
-	t_point vs = rotate(vs_flat, s.angle);
-	t_point res = {s.ul.x + vs.x, s.ul.y + vs.y};
-	return res;
-}
-
 static void update(t_god *god)
 {
 	t_color rand_red = {255, rand() % 256, 0};

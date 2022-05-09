@@ -37,3 +37,21 @@ void	draw_triangle(void *img, t_point triangle[3], t_color color)
 			if (bsp(triangle, (t_point){x, y}))
 				mlx_put_pixel_img(img, x, y, color);
 }
+
+t_point rotate(t_point v, float angle)
+{
+	t_point res;
+
+	res.x = cos(angle) * v.x - sin(angle) * v.y;
+	res.y = sin(angle) * v.x + cos(angle) * v.y;
+	return res;
+}
+
+t_point	generate_rand_pt_in_square(t_square s)
+{
+	t_point vs_flat = {rand() % s.width, rand() % s.height};
+	t_point vs = rotate(vs_flat, s.angle);
+	t_point res = {s.ul.x + vs.x, s.ul.y + vs.y};
+	return res;
+}
+
