@@ -7,6 +7,14 @@ static void init(t_god *god)
 	god->img = mlx_new_image(god->mlx, WWIDTH, WHEIGHT);
 }
 
+static int	get_triangle_not_filled(t_triangle *triangles, int size)
+{
+	for (int i = 0; i < size; i++)
+		if (triangles[i].around != 7)
+			return i;
+	return -1;
+}
+
 
 static void update(t_god *god)
 {
@@ -19,12 +27,12 @@ static void update(t_god *god)
 	rect.height = 200;
 	rect.angle = 0;
 	triangles[0] = generate_and_draw_triangle(rect, god->img, NULL);
-	triangles[0].around = 0;
 
 	for (int i = 1; i < 10; i++)
 	{
-		int pt_i = fmin(((~triangles[i - 1].around) & 7) / 2, 2);
-		t_point base[2] = {triangles[i - 1].pts[pt_i], triangles[i - 1].pts[(pt_i + 1) % 3]};
+		int	t_i = get_triangle_not_filled(triangles, i);
+		int pt_i = fmin(((~triangles[t_i].around) & 7) / 2, 2);
+		t_point base[2] = {triangles[t_i].pts[pt_i], triangles[t_i].pts[(pt_i + 1) % 3]};
 		rect.ul = base[0];
 		t_point	base_v = minus(base[1], base[0]);
 		rect.width = norm(base_v);
@@ -33,11 +41,11 @@ static void update(t_god *god)
 		// Orienting the rect
 		t_point height_v = {0, rect.height};
 		height_v = rotate(height_v, rect.angle);
-		if (dot(height_v, minus(triangles[i - 1].pts[(pt_i + 2) % 3], rect.ul)) > 0)
+		if (dot(height_v, minus(triangles[t_i].pts[(pt_i + 2) % 3], rect.ul)) > 0)
 			rect.height *= -1;
 		triangles = (t_triangle *)realloc(triangles, (i + 1) * sizeof(t_triangle));
 		triangles[i] = generate_and_draw_triangle(rect, god->img, &base);
-		triangles[i].around = pow(2, pt_i);
+		triangles[t_i].around |= (int)pow(2, pt_i);
 	}
 }
 

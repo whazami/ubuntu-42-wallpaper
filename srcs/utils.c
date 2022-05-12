@@ -50,10 +50,12 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 	if (base == NULL) {
 		triangle.pts[0] = generate_rand_pt_in_rect(rect);
 		triangle.pts[1] = generate_rand_pt_in_rect(rect);
+		triangle.around = 0;
 	}
 	else {
 		triangle.pts[0] = (*base)[0];
 		triangle.pts[1] = (*base)[1];
+		triangle.around = 1;
 	}
 	triangle.pts[2] = generate_rand_pt_in_rect(rect);
 
