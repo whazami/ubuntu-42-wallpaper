@@ -30,29 +30,33 @@ void	mlx_put_pixel_img(void *img, int x, int y, t_color color)
 		+ (int)color.blue;
 }
 
-static t_point	generate_rand_pt_in_square(t_square s)
+static t_point	generate_rand_pt_in_rect(t_rect r)
 {
-	t_point vs_flat = {rand() % s.width, rand() % s.height};
-	t_point vs = rotate(vs_flat, s.angle);
-	t_point res = {s.ul.x + vs.x, s.ul.y + vs.y};
+	t_point vs_flat = {rand() % r.width, rand() % r.height};
+	if (r.height < 0)		// permet de facilement gerer
+		vs_flat.y *= -1;	// le sens de la hauteur du rectangle
+	t_point vs = rotate(vs_flat, r.angle);
+	t_point res = {r.ul.x + vs.x, r.ul.y + vs.y};
+	res.x = (int)res.x;		// permet d'eviter
+	res.y = (int)res.y;		// les bugs d'affichage
 	return res;
 }
 
-t_triangle	generate_and_draw_triangle(t_square square, void *img, const t_point (*base)[2])
+t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*base)[2])
 {
 	t_color		rand_red = {255, rand() % 256, 0};	
 	t_triangle	triangle;
 
 	if (base == NULL) {
-		triangle.pts[0] = generate_rand_pt_in_square(square);
-		triangle.pts[1] = generate_rand_pt_in_square(square);
+		triangle.pts[0] = generate_rand_pt_in_rect(rect);
+		triangle.pts[1] = generate_rand_pt_in_rect(rect);
 	}
 	else {
 		triangle.pts[0] = (*base)[0];
 		triangle.pts[1] = (*base)[1];
 	}
-	triangle.pts[2] = generate_rand_pt_in_square(square);
-	
+	triangle.pts[2] = generate_rand_pt_in_rect(rect);
+
 	for (int x = 0; x < WWIDTH; x++)
 		for (int y = 0; y < WHEIGHT; y++)
 			if (bsp(triangle.pts, (t_point){x, y}))
@@ -61,37 +65,14 @@ t_triangle	generate_and_draw_triangle(t_square square, void *img, const t_point 
 	return triangle;
 }
 
-t_point rotate(t_point v, float angle)
-{
-	t_point res;
-
-	res.x = cos(angle) * v.x - sin(angle) * v.y;
-	res.y = sin(angle) * v.x + cos(angle) * v.y;
-	return res;
-}
-
-float	norm(t_point v)
-{
-	return sqrt(pow(v.x, 2) + pow(v.y, 2));
-}
-
-t_point	minus(t_point a, t_point b)
-{
-	t_point res;
-
-	res.x = a.x - b.x;
-	res.y = a.y - b.y;
-	return res;
-}
-
 // Only for debug
-void draw_pts_square(t_square square, void *img)
+void draw_pts_rect(t_rect rect, void *img)
 {
 	t_color purple = {127, 0, 255};
 
 	t_point tmp;
 	for (int i = 0; i < 1000; i++) {
-		tmp = generate_rand_pt_in_square(square);
+		tmp = generate_rand_pt_in_rect(rect);
 		if (tmp.x >= 0 && tmp.x <= WWIDTH && tmp.y >= 0 && tmp.y <= WHEIGHT)
 			mlx_put_pixel_img(img, tmp.x, tmp.y, purple);
 	}

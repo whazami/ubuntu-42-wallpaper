@@ -27,13 +27,13 @@ typedef struct s_point
 	float y;
 }	t_point;
 
-typedef struct s_square
+typedef struct s_rect
 {
 	int		width;
 	int		height;
 	t_point	ul;
 	float	angle;
-}	t_square;
+}	t_rect;
 
 typedef struct s_triangle
 {
@@ -52,11 +52,18 @@ typedef struct s_god
 int			free_all(t_god *god);
 int			key_hook(int keycode, t_god *god);
 void		mlx_put_pixel_img(void *img, int x, int y, t_color color);
-t_triangle	generate_and_draw_triangle(t_square square, void *img, const t_point (*base)[2]);
+t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*base)[2]);
+void		draw_pts_rect(t_rect rect, void *img);
+
+// vector.c
+t_point		plus(t_point a, t_point b);
+t_point		minus(t_point a, t_point b);
+t_point		mult(float a, t_point b);
+t_point		divv(t_point a, float b);
+float		dot(t_point a, t_point b);
 t_point 	rotate(t_point v, float angle);
 float		norm(t_point v);
-t_point		minus(t_point a, t_point b);
-void		draw_pts_square(t_square square, void *img);
+void		normalize(t_point *v);
 
 // bsp.c
 int		bsp(t_point triangle[3], t_point pt);
