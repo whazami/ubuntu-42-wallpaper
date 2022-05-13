@@ -15,6 +15,20 @@ static int	get_triangle_not_filled(t_triangle *triangles, int size)
 	return -1;
 }
 
+static int	ccw(t_point a, t_point b, t_point c)
+{
+	return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
+}
+
+static int	lines_collide(t_point l1[2], t_point l2[2])
+{
+	return ccw(l1[0], l2[0], l2[1]) != ccw(l1[1], l2[0], l2[1]) && ccw(l1[0], l1[1], l2[0]) != ccw(l1[0], l1[1], l2[1]);
+}
+
+static int	triangle_collide(t_triangle t1, t_triangle t2)
+{
+	
+}
 
 static void update(t_god *god)
 {
