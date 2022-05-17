@@ -32,7 +32,7 @@ void	mlx_put_pixel_img(void *img, int x, int y, t_color color)
 
 static t_point	generate_rand_pt_in_rect(t_rect r)
 {
-	const int min_height = 15;
+	const int min_height = 20;
 	t_point vs_flat = {rand() % r.width, min_height + rand() % (r.height - min_height)};
 	if (r.height < 0)		// permet de facilement gerer
 		vs_flat.y *= -1;	// le sens de la hauteur du rectangle

@@ -38,7 +38,7 @@ static void update(t_god *god)
 	rect.angle = 0;
 	triangles[0] = generate_and_draw_triangle(rect, god->img, NULL, triangles, 1, god->coloris);
 
-	for (int i = 1; i < 1500; i++)
+	for (int i = 1; i < 2000; i++)
 	{
 		int	t_i = get_triangle_not_filled(triangles, i);
 		int pt_i = fmin(((~triangles[t_i].around) & 7) / 2, 2);
