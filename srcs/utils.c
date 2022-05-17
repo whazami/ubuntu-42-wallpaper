@@ -32,7 +32,8 @@ void	mlx_put_pixel_img(void *img, int x, int y, t_color color)
 
 static t_point	generate_rand_pt_in_rect(t_rect r)
 {
-	t_point vs_flat = {rand() % r.width, rand() % r.height};
+	const int min_height = 15;
+	t_point vs_flat = {rand() % r.width, min_height + rand() % (r.height - min_height)};
 	if (r.height < 0)		// permet de facilement gerer
 		vs_flat.y *= -1;	// le sens de la hauteur du rectangle
 	t_point vs = rotate(vs_flat, r.angle);
@@ -42,10 +43,29 @@ static t_point	generate_rand_pt_in_rect(t_rect r)
 	return res;
 }
 
-t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*base)[2])
+#include <sys/time.h>
+t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*base)[2], t_triangle *triangles, int size, int coloris)
 {
-	t_color		rand_red = {255, rand() % 256, 0};	
+	static int	cpt;
 	t_triangle	triangle;
+	struct timeval start,stop;
+
+	/// Differents coloris
+	t_color rand_color;
+	if (coloris == 1)	// Jungle
+	{
+		int	rand_red = rand() % 256;
+		rand_color = (t_color){rand_red, rand_red == 0 ? 0 : rand() % rand_red, 0};
+	}
+	else if (coloris == 2)	// Black & White
+	{
+		int	rand_c = rand() % 256;
+		rand_color = (t_color){rand_c, rand_c, rand_c};
+	}
+	else if (coloris == 3)	// Red-Yellow Gradient
+		rand_color = (t_color){255, rand() % 256, 0};
+	else if (coloris == 4)	// Full Random
+		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
 
 	if (base == NULL) {
 		triangle.pts[0] = generate_rand_pt_in_rect(rect);
@@ -59,11 +79,57 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 	}
 	triangle.pts[2] = generate_rand_pt_in_rect(rect);
 
-	for (int x = 0; x < WWIDTH; x++)
-		for (int y = 0; y < WHEIGHT; y++)
-			if (bsp(triangle.pts, (t_point){x, y}))
-				mlx_put_pixel_img(img, x, y, rand_red);
+	for (int i = 0; i < size - 1; i++)
+		if (triangles_collide(triangle, triangles[i])) {
+			int pt_id = find_same_pt_in_triangles(triangles[i], triangle);
+			if (pt_id != -1)
+				triangles[i].around |= (int)pow(2, pt_id);
+			pt_id = find_same_pt_in_triangles(triangle, triangles[i]);
+			if (pt_id != -1)
+				triangle.around |= (int)pow(2, pt_id);
+			triangle.pts[2] = triangles[i].pts[2];
+		}
 
+	if (pts_are_equal(triangle.pts[2], triangle.pts[0])		// permet d'eviter de creer un rect
+		|| pts_are_equal(triangle.pts[2], triangle.pts[1]))	// ou deux points se collisionnent
+	{
+		cpt++;
+		if (cpt > 3) {
+			triangle.around = 7;
+			return triangle;
+		}
+		return generate_and_draw_triangle(rect, img, base, triangles, size, coloris);
+	}
+	cpt = 0;
+
+	int dont_draw = 0;
+	for (int i = 0; i < size; i++)
+		if (triangles_are_equal(triangle, triangles[i])) {
+			dont_draw = 1;
+			break;
+		}
+
+	int x_min = WWIDTH - 1, x_max = 0, y_min = WHEIGHT - 1, y_max = 0;
+	for (int i = 0; i < 3; i++) {
+		if (triangle.pts[i].x < x_min)
+			x_min = triangle.pts[i].x;
+		if (triangle.pts[i].x > x_max)
+			x_max = triangle.pts[i].x;
+		if (triangle.pts[i].y < y_min)
+			y_min = triangle.pts[i].y;
+		if (triangle.pts[i].y > y_max)
+			y_max = triangle.pts[i].y;
+	}
+	if (!dont_draw)
+		for (int x = fmax(x_min, 0); x < fmin(x_max, WWIDTH); x++)
+			for (int y = fmax(y_min, 0); y < fmin(y_max, WHEIGHT); y++)
+				if (bsp(triangle.pts, (t_point){x, y})) {
+					gettimeofday(&start, NULL);
+					mlx_put_pixel_img(img, x, y, rand_color);
+					gettimeofday(&stop, NULL);
+					//printf("put_pixel_img: %lu\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+				}
+	
 	return triangle;
 }
 

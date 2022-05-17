@@ -1,6 +1,6 @@
 
 SOURCE_DIR	= srcs/
-SOURCES		= main.c utils.c bsp.c vector.c
+SOURCES		= main.c utils.c triangle.c vector.c
 
 OBJ_DIR		= objs/
 OBJS		= ${SOURCES:.c=.o}

@@ -1,7 +1,18 @@
 #include "../includes/wallpaper.h"
+#include <sys/time.h>
+
+#define RECT_HEIGHT 150
 
 static void init(t_god *god)
 {
+	printf("[1] Jungle\n[2] Black & White\n[3] Red-Yellow Gradient\n[4] Full Random\n\nChoose the coloration: ");
+	int i;
+	scanf("%d", &i);
+	if (i < 1 || i > 4) {
+		printf("Wrong input. Try again.\n");
+		exit(1);
+	}
+	god->coloris = i;
 	god->mlx = mlx_init();
 	god->win = mlx_new_window(god->mlx, WWIDTH, WHEIGHT, "Ubuntu wallpaper");
 	god->img = mlx_new_image(god->mlx, WWIDTH, WHEIGHT);
@@ -15,21 +26,6 @@ static int	get_triangle_not_filled(t_triangle *triangles, int size)
 	return -1;
 }
 
-static int	ccw(t_point a, t_point b, t_point c)
-{
-	return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
-}
-
-static int	lines_collide(t_point l1[2], t_point l2[2])
-{
-	return ccw(l1[0], l2[0], l2[1]) != ccw(l1[1], l2[0], l2[1]) && ccw(l1[0], l1[1], l2[0]) != ccw(l1[0], l1[1], l2[1]);
-}
-
-static int	triangle_collide(t_triangle t1, t_triangle t2)
-{
-	
-}
-
 static void update(t_god *god)
 {
 	t_triangle *triangles = malloc(sizeof(t_triangle));
@@ -37,12 +33,12 @@ static void update(t_god *god)
 	/// First Triangle
 	t_rect rect;
 	rect.ul = (t_point){450, 233};
-	rect.width = 300;
-	rect.height = 200;
+	rect.width = 1.5f * RECT_HEIGHT;
+	rect.height = RECT_HEIGHT;
 	rect.angle = 0;
-	triangles[0] = generate_and_draw_triangle(rect, god->img, NULL);
+	triangles[0] = generate_and_draw_triangle(rect, god->img, NULL, triangles, 1, god->coloris);
 
-	for (int i = 1; i < 10; i++)
+	for (int i = 1; i < 1500; i++)
 	{
 		int	t_i = get_triangle_not_filled(triangles, i);
 		int pt_i = fmin(((~triangles[t_i].around) & 7) / 2, 2);
@@ -50,7 +46,7 @@ static void update(t_god *god)
 		rect.ul = base[0];
 		t_point	base_v = minus(base[1], base[0]);
 		rect.width = norm(base_v);
-		rect.height = 200;
+		rect.height = RECT_HEIGHT;
 		rect.angle = atan2(base_v.y, base_v.x);
 		// Orienting the rect
 		t_point height_v = {0, rect.height};
@@ -58,7 +54,9 @@ static void update(t_god *god)
 		if (dot(height_v, minus(triangles[t_i].pts[(pt_i + 2) % 3], rect.ul)) > 0)
 			rect.height *= -1;
 		triangles = (t_triangle *)realloc(triangles, (i + 1) * sizeof(t_triangle));
-		triangles[i] = generate_and_draw_triangle(rect, god->img, &base);
+		triangles[i] = generate_and_draw_triangle(rect, god->img, &base, triangles, i + 1, god->coloris);
+		if (triangle_is_out_of_bounds(triangles[i], 0, WWIDTH, 0, WHEIGHT))
+			triangles[i].around = 7;
 		triangles[t_i].around |= (int)pow(2, pt_i);
 	}
 }
