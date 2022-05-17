@@ -30,6 +30,23 @@ void	mlx_put_pixel_img(void *img, int x, int y, t_color color)
 		+ (int)color.blue;
 }
 
+//  The "saturation" parameter works like this:
+//    0.0 creates a black-and-white image.
+//    0.5 reduces the color saturation by half.
+//    1.0 causes no change.
+//    2.0 doubles the color saturation.
+static void	saturate(t_color *color, float saturation)
+{
+	const float Pr = 0.299, Pg = 0.587, Pb = 0.114;
+	double		P = sqrt(color->red * color->red * Pr
+	  					+ color->green * color->green * Pg
+						+ color->blue * color->blue * Pb);
+
+	color->red = P + (color->red - P) * saturation;
+	color->green = P + (color->green - P) * saturation;
+	color->blue = P + (color->blue - P) * saturation;
+}
+
 static t_point	generate_rand_pt_in_rect(t_rect r)
 {
 	const int min_height = 20;
@@ -43,12 +60,10 @@ static t_point	generate_rand_pt_in_rect(t_rect r)
 	return res;
 }
 
-#include <sys/time.h>
 t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*base)[2], t_triangle *triangles, int size, int coloris)
 {
 	static int	cpt;
 	t_triangle	triangle;
-	struct timeval start,stop;
 
 	/// Differents coloris
 	t_color rand_color;
@@ -66,6 +81,14 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 		rand_color = (t_color){255, rand() % 256, 0};
 	else if (coloris == 4)	// Full Random
 		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
+	else if (coloris == 5)	// Pastel
+	{
+		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
+		saturate(&rand_color, 1.1f);
+		rand_color.red = (rand_color.red + 255) / 2.f;
+		rand_color.green = (rand_color.green + 255) / 2.f;
+		rand_color.blue = (rand_color.blue + 255) / 2.f;
+	}
 
 	if (base == NULL) {
 		triangle.pts[0] = generate_rand_pt_in_rect(rect);
@@ -123,12 +146,8 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 	if (!dont_draw)
 		for (int x = fmax(x_min, 0); x < fmin(x_max, WWIDTH); x++)
 			for (int y = fmax(y_min, 0); y < fmin(y_max, WHEIGHT); y++)
-				if (bsp(triangle.pts, (t_point){x, y})) {
-					gettimeofday(&start, NULL);
+				if (bsp(triangle.pts, (t_point){x, y}))
 					mlx_put_pixel_img(img, x, y, rand_color);
-					gettimeofday(&stop, NULL);
-					//printf("put_pixel_img: %lu\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
-				}
 	
 	return triangle;
 }
