@@ -79,9 +79,7 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 	}
 	else if (coloris == 3)	// Red-Yellow Gradient
 		rand_color = (t_color){255, rand() % 256, 0};
-	else if (coloris == 4)	// Full Random
-		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
-	else if (coloris == 5)	// Pastel
+	else if (coloris == 4)	// Pastel
 	{
 		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
 		saturate(&rand_color, 1.1f);
@@ -89,6 +87,8 @@ t_triangle	generate_and_draw_triangle(t_rect rect, void *img, const t_point (*ba
 		rand_color.green = (rand_color.green + 255) / 2.f;
 		rand_color.blue = (rand_color.blue + 255) / 2.f;
 	}
+	else if (coloris == 5)	// Full Random
+		rand_color = (t_color){rand() % 256, rand() % 256, rand() % 256};
 
 	if (base == NULL) {
 		triangle.pts[0] = generate_rand_pt_in_rect(rect);

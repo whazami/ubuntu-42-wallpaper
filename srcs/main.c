@@ -5,7 +5,7 @@
 
 static void init(t_god *god)
 {
-	printf("[1] Jungle\n[2] Black & White\n[3] Red-Yellow Gradient\n[4] Full Random\n[5] Pastel\n\nChoose the coloration: ");
+	printf("[1] Jungle\n[2] Black & White\n[3] Red-Yellow Gradient\n[4] Pastel\n[5] Full random\n\nChoose the coloration: ");
 	int i;
 	scanf("%d", &i);
 	if (i < 1 || i > 5) {
